@@ -30,30 +30,48 @@ router.post('/', validateUser, (req, res, next) => {
   console.log(req.name)
 });
 
-router.put('/:id', validateUserId, validateUser, (req, res) => {
+router.put('/:id', validateUserId, validateUser, (req, res, next) => {
   // RETURN THE FRESHLY UPDATED USER OBJECT
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
-  console.log(req.user, req.name)
+  User.update(req.params.id, { name: req.name })
+  .then(() => {
+    return User.getById(req.params.id)
+  })
+    .then(user => {
+      res.json(user)
+  })
+  .catch(err => res.status(400).json(err))
 });
 
-router.delete('/:id', validateUserId,(req, res) => {
-  // RETURN THE FRESHLY DELETED USER OBJECT
-  // this needs a middleware to verify user id
-  console.log(req.user)
+router.delete('/:id', validateUserId,async (req, res, next) => {
+  try {
+    await User.remove(req.params.id)
+    res.json(req.user)
+  } catch (err) {
+    next(err)
+  }
 });
 
-router.get('/:id/posts', validateUserId, (req, res) => {
-  // RETURN THE ARRAY OF USER POSTS
-  // this needs a middleware to verify user id
-  console.log(req.user)
+router.get('/:id/posts', validateUserId, async (req, res, next) => {
+try {
+    const result = await User.getUserPosts(req.params.id)
+    res.json(result)
+  } catch (err) {
+    next(err)
+  }
 });
 
-router.post('/:id/posts', validatePost, (req, res) => {
-  // RETURN THE NEWLY CREATED USER POST
-  // this needs a middleware to verify user id
-  // and another middleware to check that the request body is valid
-  console.log(req.text)
+router.post('/:id/posts', validateUserId, validatePost, async (req, res, next) => {
+  try {
+    const result = await Post.insert({
+      user_id: req.params.id,
+      text: req.text
+    })
+    res.status(200).json(result)
+  } catch (err) {
+    next(err)
+  }
 });
 
 router.use((err, req, res, next) => {
