@@ -24,8 +24,17 @@ catch (err){
 
 function validateUser(req, res, next) {
   // DO YOUR MAGIC
- console.log(req.user)
+ const {name} = req.body
+ if (!name) {
+  console.log('Validating User...');
+  res.status(400).json({
+    message: 'missing required name field'
+  })
+  console.log('... User Validated!')
+ } else {
+  req.name = name.trim()
   next()
+ }
 }
 
 function validatePost(req, res, next) {
