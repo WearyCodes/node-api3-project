@@ -25,7 +25,7 @@ catch (err){
 function validateUser(req, res, next) {
   // DO YOUR MAGIC
  const {name} = req.body
- if (!name) {
+ if (!name || !text.trim()) {
   console.log('Validating User...');
   res.status(400).json({
     message: 'missing required name field'
@@ -39,14 +39,17 @@ function validateUser(req, res, next) {
 
 function validatePost(req, res, next) {
   // DO YOUR MAGIC
-  if (!req.body.name) {
-    res.status(400).json({
-      message: 'missing required text field'
-    })
+  const {text} = req.body
+  if (!text || !text.trim()) {
+   console.log('Validating User...');
+   res.status(400).json({
+     message: 'missing required text field'
+   })
+   console.log('... User Validated!')
   } else {
-    console.log('validate POST is OK!')
+   req.text = text.trim()
+   next()
   }
-  next()
 }
 
 // do not forget to expose these functions to other modules
